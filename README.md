@@ -46,12 +46,17 @@ docker pull ghcr.io/josauder/mee-deepreefmap
 
 ### Basic run (GPU)
 
+Output is named after the video file to avoid overwriting results:
+
 ```bash
+VIDEO=/path/to/YOUR_VIDEO.MP4
+VIDEO_NAME=$(basename "$VIDEO" .MP4)
+
 docker run --gpus all \
-    -v /path/to/your/video/folder:/input \
-    -v /path/to/output:/output \
+    -v "$(dirname $VIDEO)":/input \
+    -v "$(pwd)/output_${VIDEO_NAME}":/output \
     ghcr.io/josauder/mee-deepreefmap \
-    --input_video=/input/YOUR_VIDEO.MP4 \
+    --input_video=/input/"${VIDEO_NAME}".MP4 \
     --timestamp=0-38 \
     --out_dir=/output \
     --fps=30
@@ -62,18 +67,54 @@ docker run --gpus all \
 ### High-density run (fewer holes, recommended)
 
 ```bash
+VIDEO=/path/to/YOUR_VIDEO.MP4
+VIDEO_NAME=$(basename "$VIDEO" .MP4)
+mkdir -p "output_${VIDEO_NAME}"
+
 docker run --gpus all \
-    -v /path/to/your/video/folder:/input \
-    -v /path/to/output:/output \
+    -v "$(dirname $VIDEO)":/input \
+    -v "$(pwd)/output_${VIDEO_NAME}":/output \
     ghcr.io/josauder/mee-deepreefmap \
-    --input_video=/input/YOUR_VIDEO.MP4 \
+    --input_video=/input/"${VIDEO_NAME}".MP4 \
     --timestamp=0-38 \
     --out_dir=/output \
     --fps=30 \
     --number_of_points_per_image=8000 \
     --distance_thresh=0.4 \
     --height=512 \
-    --width=832
+    --width=832 2>&1 | tee "output_${VIDEO_NAME}/reconstruction.log"
+```
+
+### Running multiple videos in parallel (multi-GPU)
+
+Assign each video to a specific GPU using `--gpus '"device=N"'`:
+
+```bash
+VIDEO_DIR=/path/to/videos
+
+# GPU 0 — first video
+VIDEO_NAME=GX010236_synced_enhanced
+mkdir -p output_${VIDEO_NAME}
+docker run -d --gpus '"device=0"' \
+    -v ${VIDEO_DIR}:/input \
+    -v $(pwd)/output_${VIDEO_NAME}:/output \
+    ghcr.io/josauder/mee-deepreefmap \
+    --input_video=/input/${VIDEO_NAME}.MP4 \
+    --timestamp=0-38 --out_dir=/output --fps=30 \
+    --number_of_points_per_image=8000 --distance_thresh=0.4 \
+    --height=512 --width=832
+
+# GPU 1 — second video
+VIDEO_NAME=GX010236
+mkdir -p output_${VIDEO_NAME}
+docker run -d --gpus '"device=1"' \
+    -v ${VIDEO_DIR}:/input \
+    -v $(pwd)/output_${VIDEO_NAME}:/output \
+    ghcr.io/josauder/mee-deepreefmap \
+    --input_video=/input/${VIDEO_NAME}.MP4 \
+    --timestamp=0-38 --out_dir=/output --fps=30 \
+    --number_of_points_per_image=8000 --distance_thresh=0.4 \
+    --height=512 --width=832
 ```
 
 ### Key parameters
