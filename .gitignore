@@ -1,0 +1,33 @@
+# Videos (too large for git)
+*.MP4
+*.mp4
+*.MOV
+*.mov
+*.avi
+
+# Output files (large)
+output/point_cloud_tsdf.csv
+output/results.npy
+output/point_cloud_tsdf.sub.csv
+
+# Keep output metadata (small JSON files)
+!output/percentage_covers.json
+!output/class_to_color.json
+!output/reconstruction.log
+
+# Temp files
+tmp/
+*.tmp
+*.h5
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
