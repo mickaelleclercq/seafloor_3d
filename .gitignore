@@ -6,14 +6,15 @@
 *.avi
 
 # Output files (large)
-output/point_cloud_tsdf.csv
-output/results.npy
-output/point_cloud_tsdf.sub.csv
+output*/point_cloud_tsdf.csv
+output*/point_cloud_tsdf.sub.csv
+output*/results.npy
+output*/mesh.ply
 
 # Keep output metadata (small JSON files)
-!output/percentage_covers.json
-!output/class_to_color.json
-!output/reconstruction.log
+!output*/percentage_covers.json
+!output*/class_to_color.json
+!output*/reconstruction.log
 
 # Temp files
 tmp/
